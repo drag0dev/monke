@@ -38,9 +38,25 @@ const (
 
 )
 
+var keywords = map[string]TokenType {
+    "fn": FUNCTION,
+    "let": LET,
+    "true": TRUE,
+    "false": FALSE,
+    "if": IF,
+    "else": ELSE,
+    "return": RETURN,
+}
+
 type TokenType string
 
 type Token struct {
     Type TokenType
     Literal string
+}
+
+func LookupIdent(ident string) TokenType {
+    tokenType, ok := keywords[ident]
+    if ok { return tokenType }
+    return IDENT
 }
