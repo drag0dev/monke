@@ -47,3 +47,10 @@ func (p *Program) TokenLiteral() string {
     }
 }
 
+type ReturnStatement struct {
+    Token token.Token
+    ReturnVale Expression
+}
+
+func (rs *ReturnStatement) statementNode() {}
+func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }

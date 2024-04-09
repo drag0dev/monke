@@ -21,15 +21,15 @@ func New(l *lexer.Lexer) *Parser {
     }
 
     // read twice so currToken and peekToken are set
-    p.NextToken()
-    p.NextToken()
+    p.nextToken()
+    p.nextToken()
 
     return p
 }
 
 func (p *Parser) Errors() []string { return p.errors }
 
-func (p *Parser) NextToken() {
+func (p *Parser) nextToken() {
     p.currToken = p.peekToken
     p.peekToken = p.l.NextToken()
 }
@@ -43,7 +43,7 @@ func (p *Parser) ParseProgram() *ast.Program {
         if stmt != nil {
             program.Statements = append(program.Statements, stmt)
         }
-        p.NextToken()
+        p.nextToken()
     }
 
     return program
@@ -53,9 +53,23 @@ func (p *Parser) parseStatement() ast.Statement {
     switch p.currToken.Type {
     case token.LET:
         return p.parseLetStatement()
+    case token.RETURN:
+        return p.parseReturnStatement()
     default:
         return nil
     }
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+    stmt := &ast.ReturnStatement{ Token: p.currToken }
+
+    p.nextToken()
+
+    for !p.currTokenIs(token.SEMICOLON) {
+        p.nextToken()
+    }
+
+    return stmt
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
@@ -73,7 +87,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
     // TODO: were skipping the expressions until we encounter a semicolon
     for !p.currTokenIs(token.SEMICOLON) {
-        p.NextToken()
+        p.nextToken()
     }
 
     return stmt
@@ -83,7 +97,7 @@ func (p *Parser) currTokenIs(t token.TokenType) bool { return p.currToken.Type =
 func (p *Parser) peekTokenIs(t token.TokenType) bool { return p.peekToken.Type == t }
 func (p *Parser) expectPeek(t token.TokenType) bool {
     if p.peekTokenIs(t) {
-        p.NextToken()
+        p.nextToken()
         return true
     } else {
         p.peekError(t)
